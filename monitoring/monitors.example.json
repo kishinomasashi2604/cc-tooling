@@ -1,0 +1,57 @@
+{
+  "_readme": [
+    "自動化に『生死の判定』を付けるための登録簿。ここに1件足すだけで監視対象になる。",
+    "Pythonを編集する必要はない。監視スクリプトが起動時にこのファイルを読む。",
+    "",
+    "必須: label（監視一覧の行と一致させる） / what（日本語の説明） / probe",
+    "任意: stale_hours（既定72） / inflow_query（対象の流入・停止と未発生を区別する） / blocked（確認手段が無い理由）",
+    "",
+    "★label は監視一覧に実在する行名と完全一致させること。",
+    "  一致しないと missing 扱いで黙って書き込まれない。",
+    "",
+    "probe の種類:",
+    "  [\"file_mtime\", \"<絶対パス>\"]                  … 成果物・ハートビートの更新時刻",
+    "  [\"http\", \"<URL>\"]                            … WebAppの疎通",
+    "  [\"http\", \"plist:<launchdラベル>:<環境変数名>\"] … plistからURLを解決して疎通",
+    "",
+    "★『痕跡が古い』だけでは停止と断定しない。inflow_query があるときだけ『停止』と言い切る。",
+    "  対象が来ていないのか、来ているのに処理されていないのかを区別するため。",
+    "★http の到達は『デプロイが生きている』ことしか言えない。中の処理の稼働とは別。",
+    "",
+    "★probe は evaluate() に分岐を足すだけで拡張できる（例: Gmailの処理済みラベルの",
+    "  最新日時、シートのセルに書かれた最終実行時刻）。同梱は file_mtime と http の2種類。"
+  ],
+  "monitors": [
+    {
+      "label": "com.example.nightly-job",
+      "what": "夜間バッチ（毎日3:00）",
+      "probe": [
+        "file_mtime",
+        "/path/to/logs/nightly.heartbeat"
+      ],
+      "stale_hours": 30
+    },
+    {
+      "label": "cc-hook:Stop:my-hook.sh",
+      "what": "自作フックの発火監視",
+      "probe": [
+        "file_mtime",
+        "/tmp/cc-hook-heartbeat-my-hook"
+      ],
+      "stale_hours": 72
+    },
+    {
+      "label": "gas-webapp:my-gateway",
+      "what": "Sheetsゲートウェイ（bot本体がこれ経由で読み書き）",
+      "probe": [
+        "http",
+        "plist:com.example.my-bot:GAS_GATEWAY_URL"
+      ]
+    },
+    {
+      "label": "gas-webapp:legacy-tool",
+      "what": "旧ツール（未デプロイ）",
+      "blocked": "一度もデプロイされていない。監視対象ではなく、使うなら先にデプロイが要る"
+    }
+  ]
+}

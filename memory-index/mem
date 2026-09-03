@@ -1,0 +1,8 @@
+#!/bin/bash
+# memory検索の入口。venvがあれば意味検索つき、無ければキーワードのみで動く。
+#   mem "通知が来ない"        … 検索
+#   mem "API" --show 1       … 本文表示
+#   mem --topics              … トピック一覧
+D="$HOME/.claude/memory-index"
+P="$D/.venv/bin/python"; [ -x "$P" ] || P="python3"
+exec "$P" "$D/msearch.py" "$@"

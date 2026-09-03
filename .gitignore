@@ -1,0 +1,7 @@
+# 生成物（memory の内容が入るため絶対に公開しない）
+memory-index/index.json
+memory-index/vectors.npz
+memory-index/.venv/
+monitoring/monitors.json
+**/__pycache__/
+*.pyc
